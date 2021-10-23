@@ -148,7 +148,7 @@ def fail(litterals, conjonctive, pile, modifiable_litterals, modified):
 def back(litterals, conjonctive, pile, modifiable_litterals, modified):
     # Case we went back to the beginning
     if len(pile) == 1 :
-        exit("This conjonctive is not solvable")
+        return False
     # Case at least one litteral was treated
 
     ### We reinitialize parameters for the litteral we are backing for
@@ -159,7 +159,9 @@ def back(litterals, conjonctive, pile, modifiable_litterals, modified):
     pile.pop()
     litteral = pile[-1]
     if modified[litteral] >= 2:
-        back(litterals, conjonctive, pile, modifiable_litterals, modified)
+        state = back(litterals, conjonctive, pile, modifiable_litterals, modified)
+        if state == False:
+            return False
     litterals[litteral] = (False, False)
     modified[litteral] += 1
     return litterals
@@ -189,9 +191,22 @@ def solve(litterals:dict, conjonctive):
                     temp_litterals = fail(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
                 else:
                     temp_litterals = back(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
+                    if temp_litterals == False:
+                        cal_12 = False
         else:
             temp_litterals = proceed(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
 
+    if temp_litterals == False:
+        return "The CNRF was not solvable !"
     return (f"litterals: {temp_litterals}\npile: {pile}\nmodifiable_litterals: {modifiable_litterals}\nmodified: {modified}")
 
 print(solve(litterals_test, conjonctive_test))
+
+"""
+import time
+start = time.time()
+for i in range(10000):
+    solve(litterals_test, conjonctive_test)
+end = time.time()
+print(end - start)
+"""
