@@ -2,7 +2,8 @@ import copy
 litterals_test = {
     1: (None, False),
     2: (None, False),
-    3: (None, False)
+    3: (None, False),
+    4: (None, False)
 }
 
 conjonctive_test = [
@@ -36,6 +37,29 @@ def generate_length_vector(conjonctive):
     """This function will generate the length vector corresponding to the given conjonctive"""
     return [len(conjonctive[i]) for i in range(len(conjonctive))]
 
+def simplify_CNRF(conjonctive, litterals):
+    """This function simplify a conjonctive BY REMOVING ELEMENTS IN IT. Use with caution"""
+    temp_conjonctive = copy.deepcopy(conjonctive)
+    for i in range(len(temp_conjonctive)):
+        clause = temp_conjonctive[i]
+        for element in clause:
+            if abs(element) in litterals.keys() and litterals[abs(element)][0] != None:
+                bool_value = ((element > 0) == (litterals[abs(element)][0])) # We found the value of the litteral, depending of the bool assigned to it and if it's a negation or not
+                if bool_value: # if the litteral is True, we delete the clause he is in
+                    temp_conjonctive[i] = True # Instead of deleting the clause, we assign a special value to it because deletion will cause index issues in the for loop
+                else: # If the litteral is False, we remove it from the clause
+                    clause[clause.index(element)] = False
+        while False in clause:
+            clause.remove(False)
+        if len(clause) == 0: # if a clause is empty, all litterals inside are false so the conjonctive is false
+            return False
+    # Deletion of all True clauses once the loop is over
+    while True in temp_conjonctive:
+        temp_conjonctive.remove(True)
+    if len(temp_conjonctive) == 0: # if the conjonctive is empty, all clauses are true so the conjonctive is true
+        return True
+    return temp_conjonctive
+
 def simplify(conjonctive, litterals):
     """This function simplify a conjonctive. For optimization purpose, the function works with a length vector instead of using the whole CNRF"""
     length_vector = generate_length_vector(conjonctive) # Complexity of deepcopy : O(n²), complexity of length generation : O(n). Added to it the lessen complexity of not editing an array of array, it's quite simpler.
@@ -53,7 +77,6 @@ def simplify(conjonctive, litterals):
                     length_vector[i] -= 1
         if length_vector[i] == 0: # if a clause is empty (it's length is 0), all litterals inside are false so the conjonctive is false
             return False
-    print(length_vector)
     if length_vector.count(-1) == len(length_vector): # if all clauses are true (there is as mush satisfied clauses as there is clauses)
         return True
     return conjonctive
@@ -86,38 +109,38 @@ def initialize_solving(conjonctive, litterals):
     """This will loop through the conjonctive by simplifying all mono-litterals and pure litterals"""
     litterals = forever_alone_litterals(conjonctive, litterals)
     if not(litterals):
-        return False
-    simplified_conjonctive = simplify(conjonctive, litterals)
+        return False, litterals
+    simplified_conjonctive = simplify_CNRF(conjonctive, litterals)
     if simplified_conjonctive == True:
-        return litterals,"\n",conjonctive,"The End"
+        return True, litterals
     elif simplified_conjonctive == False:
-        return False
+        return False, litterals
     while simplified_conjonctive != conjonctive:
         conjonctive = simplified_conjonctive
         litterals = forever_alone_litterals(conjonctive, litterals)
         if not(litterals):
-            return False
-        simplified_conjonctive = simplify(conjonctive, litterals)
+            return False, litterals
+        simplified_conjonctive = simplify_CNRF(conjonctive, litterals)
         if simplified_conjonctive == True:
-            return litterals,"\n",conjonctive,"The End"
+            return True, litterals
         elif simplified_conjonctive == False:
-            return False
+            return False, litterals
 
     
     litterals = holy_litterals(simplified_conjonctive, litterals)
-    simplified_conjonctive = simplify(conjonctive, litterals)
+    simplified_conjonctive = simplify_CNRF(conjonctive, litterals)
     if simplified_conjonctive == True:
-        return litterals,"\n",conjonctive,"The End"
+        return True, litterals
     elif simplified_conjonctive == False:
-        return False
+        return False, litterals
     while simplified_conjonctive != conjonctive:
         conjonctive = simplified_conjonctive
         litterals = holy_litterals(simplified_conjonctive, litterals) 
-        simplified_conjonctive = simplify(conjonctive, litterals)
+        simplified_conjonctive = simplify_CNRF(conjonctive, litterals)
         if simplified_conjonctive == True:
-            return litterals,"\n",conjonctive,"The End"
+            return True, litterals
         elif simplified_conjonctive == False:
-            return False
+            return False, litterals
     return litterals, simplified_conjonctive
 
 def to_be_modified(litterals):
@@ -176,7 +199,10 @@ def back(litterals, conjonctive, pile, modifiable_litterals, modified):
 
 def solve(litterals:dict, conjonctive):
     # We begin by simplifying all mono-litterals
-    litterals, conjonctive = initialize_solving(conjonctive, litterals)
+    init = initialize_solving(conjonctive, litterals)
+    if isinstance(init[0], bool):
+        return init[1]
+    litterals, conjonctive = init
     modifiable_litterals, modified = to_be_modified(litterals)
     pile = []
     conjonctive_save = copy.deepcopy(conjonctive)
@@ -186,9 +212,8 @@ def solve(litterals:dict, conjonctive):
     temp_litterals = proceed(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
     cal_12 = True
     while cal_12:
-        print(f"conjonctive : {conjonctive}\nlitteraux : {temp_litterals}\n\n")
+        #print(f"conjonctive : {conjonctive}\nlitteraux : {temp_litterals}\n\n")
         conjonctive = simplify(conjonctive_save, temp_litterals)
-        print(conjonctive)
         if isinstance(conjonctive, bool):
             if conjonctive:
                 cal_12 = False
