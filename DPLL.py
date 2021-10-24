@@ -7,10 +7,8 @@ litterals_test = {
 }
 
 conjonctive_test = [
-    [1, 2],
-    [3, 4],
-    [1, -4],
-    [-3, 2]
+    [1, 2, 3, 4],
+    [-1, -2, -3, -4]
 ]
 
 def clauseIsTrue(clause, litterals):
@@ -169,7 +167,7 @@ def back(litterals, conjonctive, pile, modifiable_litterals, modified):
 
 
 
-def solve(litterals:dict, conjonctive):
+def solve(litterals:dict, conjonctive, first_solution_only: bool = False):
     # We begin by simplifying all mono-litterals
     init = initialize_solving(conjonctive, litterals)
     if isinstance(init[0], bool):
@@ -191,6 +189,8 @@ def solve(litterals:dict, conjonctive):
         conjonctive = simplify(conjonctive_save, temp_litterals)
         if isinstance(conjonctive, bool):
             if conjonctive:
+                if first_solution_only :
+                    return [temp_litterals]
                 solutions.append(copy.deepcopy(temp_litterals))
                 temp_litterals = back(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
                 if temp_litterals == False:
