@@ -209,7 +209,6 @@ def solve(litterals:dict, conjonctive, first_solution_only: bool = False):
     #return (f"litterals: {temp_litterals}\npile: {pile}\nmodifiable_litterals: {modifiable_litterals}\nmodified: {modified}")
     return solutions
 
-print(solve(litterals_test, conjonctive_test))
 
 """
 import time

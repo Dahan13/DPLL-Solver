@@ -1,6 +1,7 @@
 import DPLL
 import time
 import datetime
+import copy
 
 def load_conjonctive(path: str):
     """Read and get data from a file"""
@@ -18,9 +19,10 @@ def load_conjonctive(path: str):
 def separate_conjonctives(lines):
     """Separate raw data into the different conjonctives"""
     conjonctive_list = []
+    last_index = 0
     for i in range(len(lines) - 1):
         if lines[i] == "\n" and lines[i + 1] == "\n":
-            conjonctive_list.append(lines[:i])
+            conjonctive_list.append((lines[:i])[last_index:])
             last_index = i + 2
     conjonctive_list.append(lines[last_index:])
     return conjonctive_list
@@ -64,13 +66,12 @@ def write_results(conjonctives):
         solutions = DPLL.solve(litterals, conjonctive)
         end = time.time()
         exec_time = end - start
-
+            
         # Starting writing log
         file_title = f"./log/sat_solver_{number_treated}_{datetime.datetime.today()}.txt"
         file_title = file_title.replace(":", "_")  # To ensure windows compatibility
         f = open(file_title, "w")
         f.write(f"Number of possibilities : {node_numbers}\n")
-        f.write(f"Number of solutions found : {len(solutions)}\n")
         f.write(f"\n Execution time : {exec_time}s\n\n")
         f.write("Solutions found :\n")
         for element in solutions :
