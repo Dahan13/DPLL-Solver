@@ -78,6 +78,7 @@ def holy_litterals(conjonctive, litterals):
             litterals[abs(element)] = (element > 0, True)
     return litterals
 
+
 def initialize_solving(conjonctive, litterals):
     """This will loop through the conjonctive by simplifying all mono-litterals and pure litterals"""
     litterals = forever_alone_litterals(conjonctive, litterals)
@@ -85,7 +86,7 @@ def initialize_solving(conjonctive, litterals):
         return False
     simplified_conjonctive = simplify(conjonctive, litterals)
     if simplified_conjonctive == True:
-        return litterals,"\n",conjonctive,"The End"
+        return True, litterals
     elif simplified_conjonctive == False:
         return False
     while simplified_conjonctive != conjonctive:
@@ -95,7 +96,7 @@ def initialize_solving(conjonctive, litterals):
             return False
         simplified_conjonctive = simplify(conjonctive, litterals)
         if simplified_conjonctive == True:
-            return litterals,"\n",conjonctive,"The End"
+            return True, litterals
         elif simplified_conjonctive == False:
             return False
 
@@ -103,7 +104,7 @@ def initialize_solving(conjonctive, litterals):
     litterals = holy_litterals(simplified_conjonctive, litterals)
     simplified_conjonctive = simplify(conjonctive, litterals)
     if simplified_conjonctive == True:
-        return litterals,"\n",conjonctive,"The End"
+        return True, litterals
     elif simplified_conjonctive == False:
         return False
     while simplified_conjonctive != conjonctive:
@@ -111,7 +112,7 @@ def initialize_solving(conjonctive, litterals):
         litterals = holy_litterals(simplified_conjonctive, litterals) 
         simplified_conjonctive = simplify(conjonctive, litterals)
         if simplified_conjonctive == True:
-            return litterals,"\n",conjonctive,"The End"
+            return True, litterals
         elif simplified_conjonctive == False:
             return False
     return litterals, simplified_conjonctive
@@ -170,8 +171,12 @@ def back(litterals, conjonctive, pile, modifiable_litterals, modified):
 
 def solve(litterals:dict, conjonctive):
     # We begin by simplifying all mono-litterals
-    original_conjonctive = copy.deepcopy(conjonctive)
-    litterals, conjonctive = initialize_solving(conjonctive, litterals)
+    init = initialize_solving(conjonctive, litterals)
+    if isinstance(init[0], bool):
+        return init[1]
+    else:
+        litterals, conjonctive = init
+    
     modifiable_litterals, modified = to_be_modified(litterals)
     pile = []
     conjonctive_save = copy.deepcopy(conjonctive)
@@ -180,12 +185,16 @@ def solve(litterals:dict, conjonctive):
     # Shit is about to go down:
     temp_litterals = proceed(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
     cal_12 = True
+    solutions = []
     while cal_12:
         #print(f"A conjonctive : {conjonctive}\nlitteraux : {temp_litterals}\n\n")
         conjonctive = simplify(conjonctive_save, temp_litterals)
         if isinstance(conjonctive, bool):
             if conjonctive:
-                cal_12 = False
+                solutions.append(copy.deepcopy(temp_litterals))
+                temp_litterals = back(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
+                if temp_litterals == False:
+                    cal_12 = False
             else:
                 if temp_litterals[pile[-1]][0]:
                     temp_litterals = fail(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
@@ -196,9 +205,9 @@ def solve(litterals:dict, conjonctive):
         else:
             temp_litterals = proceed(temp_litterals, conjonctive,pile ,modifiable_litterals, modified)
 
-    if temp_litterals == False:
-        return "The CNRF was not solvable !"
-    return (f"litterals: {temp_litterals}\npile: {pile}\nmodifiable_litterals: {modifiable_litterals}\nmodified: {modified}")
+    
+    #return (f"litterals: {temp_litterals}\npile: {pile}\nmodifiable_litterals: {modifiable_litterals}\nmodified: {modified}")
+    return f"solutions found : {solutions}"
 
 print(solve(litterals_test, conjonctive_test))
 
