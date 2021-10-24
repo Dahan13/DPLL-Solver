@@ -2,15 +2,15 @@ import copy
 litterals_test = {
     1: (None, False),
     2: (None, False),
-    3: (None, False)
+    3: (None, False),
+    4: (None, False)
 }
 
 conjonctive_test = [
-    [1, 2, 3],
-    [-1, 2],
-    [-2, 3],
-    [-3, 1],
-    [-1, -2, -3]
+    [1, 2],
+    [3, 4],
+    [1, -4],
+    [-3, 2]
 ]
 
 def clauseIsTrue(clause, litterals):
@@ -55,7 +55,7 @@ def simplify(conjonctive, litterals):
     return temp_conjonctive
 
 def forever_alone_litterals(conjonctive, litterals):
-    """Assigns values to mono-litterals and checks for incompatibilites between mono-litterals"""
+    """Assigns values to mono-litterals and checks for incompatibilities between mono-litterals"""
     for clause in conjonctive:
         if len(clause) == 1 :
             if litterals[abs(clause[0])][1] and ((clause[0] > 0) != (litterals[abs(clause[0])][0])): # si la valeur est déjà affecté à l'autre signe c mort
@@ -173,7 +173,7 @@ def solve(litterals:dict, conjonctive):
     # We begin by simplifying all mono-litterals
     init = initialize_solving(conjonctive, litterals)
     if isinstance(init[0], bool):
-        return init[1]
+        return [init[1]]
     else:
         litterals, conjonctive = init
     
@@ -207,7 +207,7 @@ def solve(litterals:dict, conjonctive):
 
     
     #return (f"litterals: {temp_litterals}\npile: {pile}\nmodifiable_litterals: {modifiable_litterals}\nmodified: {modified}")
-    return f"solutions found : {solutions}"
+    return solutions
 
 print(solve(litterals_test, conjonctive_test))
 

@@ -1,4 +1,9 @@
+import DPLL
+import time
+import datetime
+
 def load_conjonctive(path: str):
+    """Read and get data from a file"""
     file = open(path, "r") 
     lines = file.readlines()
 
@@ -11,6 +16,7 @@ def load_conjonctive(path: str):
     return lines
     
 def separate_conjonctives(lines):
+    """Separate raw data into the different conjonctives"""
     conjonctive_list = []
     for i in range(len(lines) - 1):
         if lines[i] == "\n" and lines[i + 1] == "\n":
@@ -20,6 +26,7 @@ def separate_conjonctives(lines):
     return conjonctive_list
 
 def convert_conjonctive(conjonctive_list):
+    """Convert raw conjonctives into formalized and usable ones"""
     conjonctives = []
     for raw_conjonctive in conjonctive_list:
 
@@ -41,10 +48,36 @@ def convert_conjonctive(conjonctive_list):
         conjonctives.append((litterals, conjonctive))
     return conjonctives
 
+def get_conjonctives(path: str):
+    return convert_conjonctive(separate_conjonctives(load_conjonctive(path)))
+
+def write_results(conjonctives):
+    """Will solve a conjonctive and give all kind of infos about it"""
+    number_treated = 0
+    for couple in conjonctives :
+        number_treated += 1
+        litterals = couple[0]
+        conjonctive = couple[1]
+        # Getting all values
+        node_numbers = 2**(len(litterals.keys())) # Total number of possibilities (= combination of litteral values)
+        start = time.time()
+        solutions = DPLL.solve(litterals, conjonctive)
+        end = time.time()
+        exec_time = end - start
+
+        # Starting writing log
+        file_title = f"./log/sat_solver_{number_treated}_{datetime.datetime.today()}.txt"
+        file_title = file_title.replace(":", "_")  # To ensure windows compatibility
+        f = open(file_title, "w")
+        f.write(f"Number of possibilities : {node_numbers}\n")
+        f.write(f"Number of solutions found : {len(solutions)}\n")
+        f.write(f"\n Execution time : {exec_time}s\n\n")
+        f.write("Solutions found :\n")
+        for element in solutions :
+            f.write(f"- {element}\n")
+        f.close()
 
 
-conjonctives = convert_conjonctive(separate_conjonctives(load_conjonctive("./load.txt")))
-for element in conjonctives:
-    print(element[0])
-    print(element[1])
-    print('\n\n')
+write_results(get_conjonctives("./load.txt"))
+
+
