@@ -20,9 +20,31 @@ def separate_conjonctives(lines):
     return conjonctive_list
 
 def convert_conjonctive(conjonctive_list):
+    conjonctives = []
     for raw_conjonctive in conjonctive_list:
-        
+
+        # Generating dictionary of litterals :
+        litterals = {}
+        litteral_number = int(raw_conjonctive[0][:len(raw_conjonctive[0]) - 1])
+        for i in range(1, litteral_number + 1):
+            litterals[i] = (None, False)
+
+        # Generating the conjonctive
+        raw_clauses = raw_conjonctive[2:]
+        conjonctive = []
+        for raw_clause in raw_clauses:
+            if '\n' in raw_clause: # Deleting line break 
+                raw_clause = raw_clause[:len(raw_clause)-1]
+            terms = raw_clause.split(' ')
+            clause = [int(terms[i]) for i in range(len(terms))]
+            conjonctive.append(clause)
+        conjonctives.append((litterals, conjonctive))
+    return conjonctives
 
 
 
-print(separate_conjonctives(load_conjonctive("./load.txt")))
+conjonctives = convert_conjonctive(separate_conjonctives(load_conjonctive("./load.txt")))
+for element in conjonctives:
+    print(element[0])
+    print(element[1])
+    print('\n\n')
