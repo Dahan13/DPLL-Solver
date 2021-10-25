@@ -2,6 +2,7 @@ import DPLL
 import time
 import datetime
 import copy
+import CNF_generator as gen
 
 def load_conjonctive(path: str):
     """Read and get data from a file"""
@@ -53,6 +54,30 @@ def convert_conjonctive(conjonctive_list):
 def get_conjonctives(path: str):
     return convert_conjonctive(separate_conjonctives(load_conjonctive(path)))
 
+def solutions_reconstruction(solutions):
+    """Takes an array of all the litterals that are solutions"""
+    index = 0
+    while index < len(solutions): # We use a while loop because solutions will be incremented, meaning that it's len will change and therefore needs to be updated
+        literals = solutions[index]
+        increment_index = True
+        for key in literals.keys():
+            if literals[key][0] == None: # If a literal value was not defined, conjonctive is True with either False or True, we are reconstituting these solutions
+                # Copying our litterals before deleting it from solutions, also marking index not to be incremented since we are removing an element from the list
+                literals = copy.deepcopy(solutions[index])
+                del solutions[index]
+                increment_index = False
+
+                # Creating and appending our corrected solutions
+                first_solution = copy.deepcopy(literals)
+                first_solution[key] = (True, literals[key][1])
+                second_solution = literals # No need for a deepcopy this time to save complexity
+                second_solution[key] = (False, literals[key][1])
+                solutions.append(first_solution)
+                solutions.append(second_solution)
+        if increment_index:
+            index += 1
+    return solutions
+
 def write_results(conjonctives):
     """Will solve a conjonctive and give all kind of infos about it"""
     number_treated = 0
@@ -62,23 +87,31 @@ def write_results(conjonctives):
         conjonctive = couple[1]
         # Getting all values
         node_numbers = 2**(len(litterals.keys())) # Total number of possibilities (= combination of litteral values)
-        start = time.time()
+        start_solve = time.time()
         solutions = DPLL.solve(litterals, conjonctive)
-        end = time.time()
-        exec_time = end - start
+        end_solve = time.time()
+        start_reconstruct = time.time()
+        solutions = solutions_reconstruction(solutions)
+        end_reconstruct = time.time()
+        exec_time_solve = end_solve - start_solve
+        exec_time_reconstruct = end_reconstruct - start_reconstruct
             
         # Starting writing log
         file_title = f"./log/sat_solver_{number_treated}_{datetime.datetime.today()}.txt"
         file_title = file_title.replace(":", "_")  # To ensure windows compatibility
         f = open(file_title, "w")
         f.write(f"Number of possibilities : {node_numbers}\n")
-        f.write(f"\n Execution time : {exec_time}s\n\n")
+        f.write(f"Number of solutions found : {len(solutions)}")
+        f.write(f"\n Solver execution time : {exec_time_solve}s")
+        f.write(f"\n Solution reconstruction execution time : {exec_time_reconstruct}s")
+        f.write(f"\n Total execution time : {exec_time_solve + exec_time_reconstruct}s\n\n")
         f.write("Solutions found :\n")
         for element in solutions :
             f.write(f"- {element}\n")
         f.close()
+        
 
 
-write_results(get_conjonctives("./load.txt"))
+write_results([gen.generate_conjonctive(20, 20)])
 
 
