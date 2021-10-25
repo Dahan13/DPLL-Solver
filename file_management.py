@@ -95,6 +95,12 @@ def write_results(conjonctives):
         end_reconstruct = time.time()
         exec_time_solve = end_solve - start_solve
         exec_time_reconstruct = end_reconstruct - start_reconstruct
+        naive_solution = DPLL.naive_solve(litterals, conjonctive)
+        solution_checker = True
+        for solution in naive_solution:
+            if solution not in solutions:
+                solution_checker = False
+                break
             
         # Starting writing log
         file_title = f"./log/sat_solver_{number_treated}_{datetime.datetime.today()}.txt"
@@ -105,13 +111,32 @@ def write_results(conjonctives):
         f.write(f"\n Solver execution time : {exec_time_solve}s")
         f.write(f"\n Solution reconstruction execution time : {exec_time_reconstruct}s")
         f.write(f"\n Total execution time : {exec_time_solve + exec_time_reconstruct}s\n\n")
+        f.write(f"Result comparison with naive solver : {solution_checker}\n")
         f.write("Solutions found :\n")
         for element in solutions :
+            f.write(f"- {element}\n")
+        
+
+        f.write("Naive solutions found :\n")
+        for element in naive_solution :
             f.write(f"- {element}\n")
         f.close()
         
 
 
-write_results([gen.generate_conjonctive(20, 20)])
+#write_results([gen.generate_conjonctive(20, 20)])
 
+literals_test = {
+    1: (None, False),
+    2: (None, False),
+    3: (None, False),
+    4: (None, False)
+}
 
+conjonctive_test = [
+    [1, 2, 3, 4],
+    [-1, -2, -3, -4],
+    [1, -2]
+]
+
+write_results([(literals_test, conjonctive_test)])
