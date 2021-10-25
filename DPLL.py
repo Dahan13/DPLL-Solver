@@ -192,9 +192,12 @@ def solve(literals:dict, conjonctive, first_solution_only = False):
                 if first_solution_only :
                     return [temp_literals]
                 solutions.append(copy.deepcopy(temp_literals))
-                temp_literals = back(temp_literals, conjonctive,pile ,modifiable_literals, modified)
-                if temp_literals == False:
-                    cal_12 = False
+                if temp_literals[pile[-1]][0]:
+                    temp_literals = fail(temp_literals, conjonctive,pile ,modifiable_literals, modified)
+                else:
+                    temp_literals = back(temp_literals, conjonctive,pile ,modifiable_literals, modified)
+                    if temp_literals == False:
+                        cal_12 = False
             else:
                 if temp_literals[pile[-1]][0]:
                     temp_literals = fail(temp_literals, conjonctive,pile ,modifiable_literals, modified)
@@ -232,3 +235,4 @@ def naive_solve(literals, conjonctive):
         if conjonctiveIsTrue(conjonctive, literals):
             solutions.append(copy.deepcopy(literals))
     return solutions
+

@@ -74,6 +74,7 @@ def solutions_reconstruction(solutions):
                 second_solution[key] = (False, literals[key][1])
                 solutions.append(first_solution)
                 solutions.append(second_solution)
+                break
         if increment_index:
             index += 1
     return solutions
@@ -97,6 +98,8 @@ def write_results(conjonctives):
         exec_time_reconstruct = end_reconstruct - start_reconstruct
         naive_solution = DPLL.naive_solve(litterals, conjonctive)
         solution_checker = True
+        if len(solutions) != len(naive_solution) or len(solutions) > node_numbers: # Testing some worst case scenarios
+            exit("A critical error occurred")
         for solution in naive_solution:
             if solution not in solutions:
                 solution_checker = False
@@ -117,26 +120,13 @@ def write_results(conjonctives):
             f.write(f"- {element}\n")
         
 
-        f.write("Naive solutions found :\n")
+        f.write("\n\nNaive solutions found :\n")
         for element in naive_solution :
             f.write(f"- {element}\n")
         f.close()
         
 
 
-#write_results([gen.generate_conjonctive(20, 20)])
+write_results([gen.generate_conjonctive(10, 10)])
 
-literals_test = {
-    1: (None, False),
-    2: (None, False),
-    3: (None, False),
-    4: (None, False)
-}
 
-conjonctive_test = [
-    [1, 2, 3, 4],
-    [-1, -2, -3, -4],
-    [1, -2]
-]
-
-write_results([(literals_test, conjonctive_test)])
