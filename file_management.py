@@ -123,10 +123,12 @@ def write_results(conjonctives):
         f.write("\n\nNaive solutions found :\n")
         for element in naive_solution :
             f.write(f"- {element}\n")
+        print(f"Log saved at : \"{f.name}\"")
         f.close()
+
         
 
 
-write_results([gen.generate_conjonctive(10, 10)])
+write_results([gen.generate_conjonctive(3, 3)])
 
 

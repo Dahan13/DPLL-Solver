@@ -7,9 +7,7 @@ literals_test = {
 }
 
 conjonctive_test = [
-    [1, 2, 3, 4],
-    [-1, -2, -3, -4],
-    [1, -2]
+    [1, 2, 3, 4]
 ]
 
 def clauseIsTrue(clause, literals):

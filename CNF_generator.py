@@ -1,5 +1,4 @@
 import random as rd
-import sys
 
 def generate_conjonctive(n_clauses, n_literals):
 
@@ -11,7 +10,7 @@ def generate_conjonctive(n_clauses, n_literals):
     # Generating conjonctive
     conjonctive = []
 
-    for i in range(n_clauses):
+    while len(conjonctive) != n_clauses:
         clause = []
         for j in range(1, n_literals + 1):
             literal_value = rd.randint(0, 2)
@@ -24,4 +23,3 @@ def generate_conjonctive(n_clauses, n_literals):
         if len(clause) != 0:
             conjonctive.append(clause)
     return literals, conjonctive
-
