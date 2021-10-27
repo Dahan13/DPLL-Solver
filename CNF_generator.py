@@ -5,7 +5,7 @@ def generate_conjonctive(n_clauses, n_literals):
     # Generating litterals
     literals = {}
     for i in range(1, n_literals + 1):
-        literals[i] = (None, False)
+        literals[i] = None
 
     # Generating conjonctive
     conjonctive = []

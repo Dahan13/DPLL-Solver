@@ -61,7 +61,7 @@ def solutions_reconstruction(solutions):
         literals = solutions[index]
         increment_index = True
         for key in literals.keys():
-            if literals[key][0] == None: # If a literal value was not defined, conjonctive is True with either False or True, we are reconstituting these solutions
+            if literals[key] == None: # If a literal value was not defined, conjonctive is True with either False or True, we are reconstituting these solutions
                 # Copying our litterals before deleting it from solutions, also marking index not to be incremented since we are removing an element from the list
                 literals = copy.deepcopy(solutions[index])
                 del solutions[index]
@@ -69,9 +69,9 @@ def solutions_reconstruction(solutions):
 
                 # Creating and appending our corrected solutions
                 first_solution = copy.deepcopy(literals)
-                first_solution[key] = (True, literals[key][1])
+                first_solution[key] = True
                 second_solution = literals # No need for a deepcopy this time to save complexity
-                second_solution[key] = (False, literals[key][1])
+                second_solution[key] = False
                 solutions.append(first_solution)
                 solutions.append(second_solution)
                 break
@@ -79,7 +79,7 @@ def solutions_reconstruction(solutions):
             index += 1
     return solutions
 
-def write_results(conjonctives):
+def write_results(conjonctives, show_naive = True):
     """Will solve a conjonctive and give all kind of infos about it"""
     number_treated = 0
     for couple in conjonctives :
@@ -96,14 +96,15 @@ def write_results(conjonctives):
         end_reconstruct = time.time()
         exec_time_solve = end_solve - start_solve
         exec_time_reconstruct = end_reconstruct - start_reconstruct
-        naive_solution = DPLL.naive_solve(litterals, conjonctive)
-        solution_checker = True
-        if len(solutions) != len(naive_solution) or len(solutions) > node_numbers: # Testing some worst case scenarios
-            exit("A critical error occurred")
-        for solution in naive_solution:
-            if solution not in solutions:
-                solution_checker = False
-                break
+        if show_naive:
+            naive_solution = DPLL.naive_solve(litterals, conjonctive)
+            solution_checker = True
+            if len(solutions) != len(naive_solution) or len(solutions) > node_numbers: # Testing some worst case scenarios
+                print("A critical error occurred")
+            for solution in naive_solution:
+                if solution not in solutions:
+                    solution_checker = False
+                    break
             
         # Starting writing log
         file_title = f"./log/sat_solver_{number_treated}_{datetime.datetime.today()}.txt"
@@ -114,21 +115,29 @@ def write_results(conjonctives):
         f.write(f"\n Solver execution time : {exec_time_solve}s")
         f.write(f"\n Solution reconstruction execution time : {exec_time_reconstruct}s")
         f.write(f"\n Total execution time : {exec_time_solve + exec_time_reconstruct}s\n\n")
-        f.write(f"Result comparison with naive solver : {solution_checker}\n")
+        f.write(f"Conjonctive treated : {conjonctive}\n\n")
+        if show_naive:
+            f.write(f"Result comparison with naive solver : {solution_checker}\n")
         f.write("Solutions found :\n")
         for element in solutions :
             f.write(f"- {element}\n")
         
-
-        f.write("\n\nNaive solutions found :\n")
-        for element in naive_solution :
-            f.write(f"- {element}\n")
+        if show_naive:
+            f.write("\n\nNaive solutions found :\n")
+            for element in naive_solution :
+                f.write(f"- {element}\n")
         print(f"Log saved at : \"{f.name}\"")
         f.close()
 
         
+literals_b = {
+    1: None,
+    2: None,
+    3: None,
+    4: None,
+    5: None
+}
 
+buggy_conjonctive = [[1, -3, 4, 5], [1, 2, 3, 5], [-1, 2, -4, -5], [-2, 3, -4, -5], [-3, -4, 5]]
 
-write_results([gen.generate_conjonctive(3, 3)])
-
-
+write_results([gen.generate_conjonctive(10, 10)])
