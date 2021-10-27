@@ -31,7 +31,12 @@ def conjonctiveIsTrue(conjonctive, literals):
             return False
     return True
 
-def simplify(conjonctive, literals):
+def generate_length_vector(conjonctive):
+    """This function will generate the length vector corresponding to the given conjonctive"""
+    return [len(conjonctive[i]) for i in range(len(conjonctive))]
+
+def simplify_CNF(conjonctive, literals):
+    """This function simplify a conjonctive BY REMOVING ELEMENTS IN IT. Use with caution"""
     temp_conjonctive = copy.deepcopy(conjonctive)
     for i in range(len(temp_conjonctive)):
         clause = temp_conjonctive[i]
@@ -53,8 +58,29 @@ def simplify(conjonctive, literals):
         return True
     return temp_conjonctive
 
+def simplify(conjonctive, litterals):
+    """This function simplify a conjonctive. For optimization purpose, the function works with a length vector instead of using the whole CNF"""
+    length_vector = generate_length_vector(conjonctive) # Complexity of deepcopy : O(n²), complexity of length generation : O(n). Added to it the lessen complexity of not editing an array of array, it's quite simpler.
+    for i in range(len(conjonctive)):
+        clause = conjonctive[i]
+        for element in clause:
+            if length_vector[i] == -1: # In case the clause is already satisfied, we can stop the for loop for this clause
+                break
+
+            if abs(element) in litterals.keys() and litterals[abs(element)][0] != None:
+                bool_value = ((element > 0) == (litterals[abs(element)][0])) # We found the value of the litteral, depending of the bool assigned to it and if it's a negation or not
+                if bool_value: # if the litteral is True, we delete the clause he is in
+                    length_vector[i] = -1 # We indicate that the clause is True (we do not use True because the function may take a 1 for a True, see the last if of the function)
+                else: # If the litteral is False, we remove it from the clause, meaning there is one less term in the clause
+                    length_vector[i] -= 1
+        if length_vector[i] == 0: # if a clause is empty (it's length is 0), all litterals inside are false so the conjonctive is false
+            return False
+    if length_vector.count(-1) == len(length_vector): # if all clauses are true (there is as mush satisfied clauses as there is clauses)
+        return True
+    return conjonctive
+
 def forever_alone_literals(conjonctive, literals):
-    """Assigns values to mono-literals and checks for incompatibilities between mono-literals"""
+    """Assigns values to mono-litterals and checks for incompatibilities between mono-litterals"""
     for clause in conjonctive:
         if len(clause) == 1 :
             if literals[abs(clause[0])][1] and ((clause[0] > 0) != (literals[abs(clause[0])][0])): # si la valeur est déjà affecté à l'autre signe c mort
@@ -126,6 +152,7 @@ def to_be_modified(literals):
     return modifiable, modified
 
 def proceed(literals, conjonctive, pile, modifiable_literals, modified):
+    """Proceed to the next litteral withing the possibility tree"""
     # Case where no literals were treated yet
     if pile == []:
         literal = modifiable_literals[0]
