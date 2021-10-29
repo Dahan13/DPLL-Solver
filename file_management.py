@@ -79,7 +79,7 @@ def solutions_reconstruction(solutions):
             index += 1
     return solutions
 
-def write_results(conjonctives, show_naive = True):
+def write_results(conjonctives, only_one_solution = False, show_naive = True, mode = 0):
     """Will solve a conjonctive and give all kind of infos about it"""
     number_treated = 0
     for couple in conjonctives :
@@ -89,14 +89,16 @@ def write_results(conjonctives, show_naive = True):
         # Getting all values
         node_numbers = 2**(len(litterals.keys())) # Total number of possibilities (= combination of litteral values)
         start_solve = time.time()
-        solutions = DPLL.solve(litterals, conjonctive)
+        solutions = DPLL.solve(litterals, conjonctive, only_one_solution, mode)
         end_solve = time.time()
         start_reconstruct = time.time()
         solutions = solutions_reconstruction(solutions)
+        if only_one_solution:
+            solutions = solutions[0]
         end_reconstruct = time.time()
         exec_time_solve = end_solve - start_solve
         exec_time_reconstruct = end_reconstruct - start_reconstruct
-        if show_naive:
+        if show_naive and not(only_one_solution):
             naive_solution = DPLL.naive_solve(litterals, conjonctive)
             solution_checker = True
             if len(solutions) != len(naive_solution) or len(solutions) > node_numbers: # Testing some worst case scenarios
@@ -105,16 +107,24 @@ def write_results(conjonctives, show_naive = True):
                 if solution not in solutions:
                     solution_checker = False
                     break
+        
+        if mode == 0:
+            heuristic_name = "Naive"
+        elif mode == 1:
+            heuristic_name = "First satisfy"
+        elif mode == 2:
+            heuristic_name = "First fail"
             
         # Starting writing log
         file_title = f"./log/sat_solver_{number_treated}_{datetime.datetime.today()}.txt"
         file_title = file_title.replace(":", "_")  # To ensure windows compatibility
         f = open(file_title, "w")
         f.write(f"Number of possibilities : {node_numbers}\n")
-        f.write(f"Number of solutions found : {len(solutions)}")
-        f.write(f"\n Solver execution time : {exec_time_solve}s")
-        f.write(f"\n Solution reconstruction execution time : {exec_time_reconstruct}s")
-        f.write(f"\n Total execution time : {exec_time_solve + exec_time_reconstruct}s\n\n")
+        f.write(f"Number of solutions found : {len(solutions)}\n")
+        f.write(f"Heuristic chosen : {heuristic_name}\n")
+        f.write(f"Solver execution time : {exec_time_solve}s\n")
+        f.write(f"Solution reconstruction execution time : {exec_time_reconstruct}s\n")
+        f.write(f"Total execution time : {exec_time_solve + exec_time_reconstruct}s\n\n")
         f.write(f"Conjonctive treated : {conjonctive}\n\n")
         if show_naive:
             f.write(f"Result comparison with naive solver : {solution_checker}\n")
@@ -128,16 +138,3 @@ def write_results(conjonctives, show_naive = True):
                 f.write(f"- {element}\n")
         print(f"Log saved at : \"{f.name}\"")
         f.close()
-
-        
-literals_b = {
-    1: None,
-    2: None,
-    3: None,
-    4: None,
-    5: None
-}
-
-buggy_conjonctive = [[1, -3, 4, 5], [1, 2, 3, 5], [-1, 2, -4, -5], [-2, 3, -4, -5], [-3, -4, 5]]
-
-write_results([gen.generate_conjonctive(10, 10)])

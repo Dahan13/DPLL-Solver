@@ -22,4 +22,18 @@ def generate_conjonctive(n_clauses, n_literals):
 
         if len(clause) != 0:
             conjonctive.append(clause)
+    name = input("Enter the name to save the generated conjonctive :\n")
+    save_conjonctive(name, literals, conjonctive)
     return literals, conjonctive
+
+def save_conjonctive(name, literals, conjonctive):
+    path = f"./saves/{name}"
+    path += ".txt"
+    f= open(path, "w")
+    f.write(f"{len(literals)}\n\n")
+    for clause in conjonctive:
+        for literal in clause:
+            f.write(f"{literal} ")
+        f.write("\n")
+    print(f"Conjonctive saved at : \"{f.name}\"")
+    f.close()

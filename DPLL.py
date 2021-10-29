@@ -37,7 +37,7 @@ def generate_length_vector(conjonctive):
     return [len(conjonctive[i]) for i in range(len(conjonctive))]
 
 
-def simplify(conjonctive, litterals):
+def simplify(conjonctive, litterals, modified, pile):
     """This function simplify a conjonctive. For optimization purpose, the function works with a length vector instead of using the whole CNF"""
     length_vector = generate_length_vector(conjonctive)
     # Complexity of deepcopy : O(n²), complexity of length generation : O(n). Added to it the lessen complexity of not editing an array of array, it's quite simpler.
@@ -57,19 +57,29 @@ def simplify(conjonctive, litterals):
             return False
     if length_vector.count(-1) == len(length_vector): # if all clauses are true (there is as mush satisfied clauses as there is clauses)
         return True
-    return conjonctive
+    
+    return length_vector
     
 
-def mono_literals(conjonctive, literals, modified, pile):
+def mono_literals(conjonctive, literals, modified, pile, length_vector):
     """Assigns values to mono-litterals and checks for incompatibilities between mono-litterals"""
-    for clause in conjonctive:
-        if len(clause) == 1:
-            if modified[abs(clause[0])] == 2 and ((clause[0] > 0) != (literals[abs(clause[0])])): # si la valeur est déjà affecté à l'autre signe c mort
-                return False
-            literals[abs(clause[0])] = (clause[0] > 0) # affect value to the corresponding literals
-            modified[abs(clause[0])] = 2 # To make the program believe that the value of the literal is definitive
-            pile.append(abs(clause[0]))
-    return literals
+    if not isinstance(length_vector, bool):
+        for i in range(len(conjonctive)):
+            if length_vector[i] == 1:
+                index = 0
+                clause = conjonctive[i]
+                # Looking for the mono_literal
+                for j in range(len(clause)):
+                    element = clause[j]
+                    if literals[abs(element)] == None: # If the element is not having any value, he is the chosen one
+                        index = j
+                        break
+                if modified[abs(clause[index])] == 2 and ((clause[index] > 0) != (literals[abs(clause[index])])): # si la valeur est déjà affecté à l'autre signe c mort
+                    return literals, False
+                literals[abs(clause[index])] = (clause[index] > 0) # affect value to the corresponding literals
+                modified[abs(clause[index])] = 2 # To make the program believe that the value of the literal is definitive
+                pile.append(abs(clause[index]))
+    return literals, True
 
 
 def pure_literals(conjonctive, literals, modified, pile):
@@ -95,24 +105,56 @@ def initialize_solving(conjonctive, literals):
     modified = [0 for i in range(len(literals.keys()) + 1)]
     modified[0] = -1
     pile = []
-    literals = mono_literals(conjonctive, literals, modified, pile)
-    if not(literals):
+    length_vector = generate_length_vector(conjonctive)
+    literals, status = mono_literals(conjonctive, literals, modified, pile, length_vector)
+    if not(status):
         return False
     conjonctive = simplify_CNF(conjonctive, literals)
     
-    return literals, conjonctive, modified, pile
-    
+    return literals, conjonctive, modified, pile, length_vector
 
-def proceed(literals, conjonctive, pile, modified):
+    
+def first_satisfy(conjonctive, literals):
+    counter = {}
+    for i in range(1, len(literals) + 1):
+        counter[i] = 0
+    keys = counter.keys()
+    for clause in conjonctive:
+        for literal in clause:
+            if literals[abs(literal)] == None and literal in keys:
+                counter[literal] += 1
+    return max(counter, key=counter.get)
+
+def first_fail(conjonctive, literals):
+    counter_neg = {-literal: 0 for literal in range(literals)}
+    keys = counter_neg.keys()
+    for clause in conjonctive:
+        for literal in clause:
+            if literals[abs(literal)] == None and literal in keys:
+                counter_neg[literal] += 1
+    return -max(counter_neg, key = counter_neg.get)
+
+
+def proceed(conjonctive, literals, pile, modified, mode = 0):
     """Proceed to the next litteral withing the possibility tree"""
     literals_list = list(literals.keys())
     # Case where no literals were treated yet
     if pile == []:
-        literal = literals_list[0]
+        if mode == 0:
+            literal = literals_list[0]
+        elif mode == 1:
+            literal = first_satisfy(conjonctive,literals)
+        elif mode == 2:
+            literal = first_fail(conjonctive,literals)
 
     # If at least one literal was treated
     else:
-        literal = modified.index(0)
+        if mode == 0:
+            literal = modified.index(0)
+        elif mode == 1:
+            literal = first_satisfy(conjonctive,literals)
+        elif mode == 2:
+            literal = first_fail(conjonctive,literals)
  
     # We attribute value to the literal and update corresponding parameters
     literals[literal] = True
@@ -121,7 +163,7 @@ def proceed(literals, conjonctive, pile, modified):
     return literals
     
 
-def fail(literals, conjonctive, pile, modified):
+def fail(literals, pile, modified):
     literal = pile[-1]
     literals[literal] = not(literals[literal])
     modified[literal] += 1
@@ -143,47 +185,49 @@ def back(literals, conjonctive, pile, modified):
     literal = pile[-1]
     if modified[literal] >= 2:
         return back(literals, conjonctive, pile, modified)
-    literals[literal] = False
+    literals[literal] = not(literals[literal])
     modified[literal] += 1
     return literals
 
 
 
-def solve(literals:dict, conjonctive, first_solution_only = False):
+def solve(literals:dict, conjonctive, first_solution_only = False, mode = 0):
     # We begin by simplifying all mono-literals
-    literals, conjonctive, modified, pile = initialize_solving(conjonctive,literals)
-    
-    conjonctive_save = copy.deepcopy(conjonctive)
-    #literals = copy.deepcopy(literals)
+    init = initialize_solving(conjonctive,literals)
+    if isinstance(init, bool):
+        if not(init):
+            return []
+    literals, conjonctive, modified, pile, length_vector = init
+    if isinstance(conjonctive, bool):
+        return [literals]
 
     # Shit is about to go down:
-    literals = proceed(literals, conjonctive, pile, modified)
     cal_12 = True
     solutions = []
     while cal_12:
-        #print(f"1 conjonctive : {conjonctive}\nlitteraux : {literals}\n\n")
-        conjonctive = simplify(conjonctive_save, literals)
-        #print(f"2 conjonctive : {conjonctive}\nlitteraux : {literals}\n\n")
-        if isinstance(conjonctive, bool):
-            if conjonctive:
+        #print(f"1 conjonctive : {conjonctive}\nlitteraux : {literals}\n length_vector : {length_vector}\n\n")
+        length_vector = simplify(conjonctive, literals, modified, pile)
+        #print(f"2 conjonctive : {conjonctive}\nlitteraux : {literals}\n length_vector : {length_vector}\n\n")
+        if isinstance(length_vector, bool):
+            if length_vector:
                 if first_solution_only :
                     return [literals]
                 solutions.append(copy.deepcopy(literals))
                 if modified[pile[-1]] == 1:
-                    literals = fail(literals, conjonctive, pile, modified)
+                    literals = fail(literals, pile, modified)
                 else:
                     literals = back(literals, conjonctive, pile, modified)
                     if literals == False: 
                         cal_12 = False
             else:
                 if modified[pile[-1]] == 1:
-                    literals = fail(literals, conjonctive, pile, modified)
+                    literals = fail(literals, pile, modified)
                 else:
                     literals = back(literals, conjonctive, pile, modified)
                     if literals == False:
                         cal_12 = False
         else:
-            literals = proceed(literals, conjonctive, pile, modified)
+            literals = proceed(conjonctive, literals, pile, modified, mode)
 
     
     #return (f"literals: {literals}\npile: {pile}\nmodifiable_literals: {modifiable_literals}\nmodified: {modified}")
@@ -213,6 +257,22 @@ def naive_solve(literals, conjonctive):
         if conjonctiveIsTrue(conjonctive, literals):
             solutions.append(copy.deepcopy(literals))
     return solutions
+
+literals_b = {
+    1: None,
+    2: None,
+    3: None,
+    4: None,
+    5: None,
+    6: None,
+    7: None,
+    8: None,
+    9: None,
+    10: None
+}
+
+conjonctive_test = [[-3, 4, -6, 7, 9, -10], [1, -2, -3, -5, -6, 7, 9, 10], [1, -3, 4, 5, 7, -8], [-2, -3, -6, -7, -9, 10], [1, -2, 3, -4, 5, -6, -7, 8, -9, -10], [-3, -4, -7], [-1, -2, -3, -5, 6, -7, 8, 9, 10], [1, 3, -5, 6, 9], [2, 3, 5, 6, -8, 9, 10], [-1, 4, 5, 6, -7, 10]]
+conjonctive_test_2 = [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [1]]
 
 
 
