@@ -1,3 +1,4 @@
+from typing import Literal
 import DPLL
 import time
 import datetime
@@ -14,7 +15,6 @@ def load_conjonctive(path: str):
         lines.remove("\n")
     while lines[-1] == "\n":
         lines.pop()
-
     return lines
     
 def separate_conjonctives(lines):
@@ -37,7 +37,7 @@ def convert_conjonctive(conjonctive_list):
         litterals = {}
         litteral_number = int(raw_conjonctive[0][:len(raw_conjonctive[0]) - 1])
         for i in range(1, litteral_number + 1):
-            litterals[i] = (None, False)
+            litterals[i] = None
 
         # Generating the conjonctive
         raw_clauses = raw_conjonctive[2:]
@@ -46,13 +46,18 @@ def convert_conjonctive(conjonctive_list):
             if '\n' in raw_clause: # Deleting line break 
                 raw_clause = raw_clause[:len(raw_clause)-1]
             terms = raw_clause.split(' ')
+            while '' in terms:
+                terms.remove('')
             clause = [int(terms[i]) for i in range(len(terms))]
             conjonctive.append(clause)
         conjonctives.append((litterals, conjonctive))
+    print("Converted")
     return conjonctives
 
 def get_conjonctives(path: str):
+    print("Initialise loading")
     return convert_conjonctive(separate_conjonctives(load_conjonctive(path)))
+    print("Ready to work")
 
 def solutions_reconstruction(solutions):
     """Takes an array of all the litterals that are solutions"""
@@ -88,17 +93,22 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
         conjonctive = couple[1]
         # Getting all values
         node_numbers = 2**(len(litterals.keys())) # Total number of possibilities (= combination of litteral values)
+        print("Starting calculation")
         start_solve = time.time()
-        solutions = DPLL.solve(litterals, conjonctive, only_one_solution, mode)
+        solutions, counter = DPLL.solve(litterals, conjonctive, only_one_solution, mode)
         end_solve = time.time()
+        print("Starting reconstruction")
         start_reconstruct = time.time()
         solutions = solutions_reconstruction(solutions)
+        
         if only_one_solution:
-            solutions = solutions[0]
+            solutions = [solutions[0]]
+        
         end_reconstruct = time.time()
         exec_time_solve = end_solve - start_solve
         exec_time_reconstruct = end_reconstruct - start_reconstruct
         if show_naive and not(only_one_solution):
+            print("Start naive calculation")
             naive_solution = DPLL.naive_solve(litterals, conjonctive)
             solution_checker = True
             if len(solutions) != len(naive_solution) or len(solutions) > node_numbers: # Testing some worst case scenarios
@@ -108,6 +118,7 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
                     solution_checker = False
                     break
         
+        print("Creating log")
         if mode == 0:
             heuristic_name = "Naive"
         elif mode == 1:
@@ -121,20 +132,22 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
         f = open(file_title, "w")
         f.write(f"Number of possibilities : {node_numbers}\n")
         f.write(f"Number of solutions found : {len(solutions)}\n")
+        f.write(f"Number of nodes traveled : {counter}\n")
         f.write(f"Heuristic chosen : {heuristic_name}\n")
         f.write(f"Solver execution time : {exec_time_solve}s\n")
         f.write(f"Solution reconstruction execution time : {exec_time_reconstruct}s\n")
         f.write(f"Total execution time : {exec_time_solve + exec_time_reconstruct}s\n\n")
         f.write(f"Conjonctive treated : {conjonctive}\n\n")
-        if show_naive:
+        if show_naive and not(only_one_solution):
             f.write(f"Result comparison with naive solver : {solution_checker}\n")
         f.write("Solutions found :\n")
         for element in solutions :
             f.write(f"- {element}\n")
         
-        if show_naive:
+        if show_naive and not(only_one_solution):
             f.write("\n\nNaive solutions found :\n")
             for element in naive_solution :
                 f.write(f"- {element}\n")
         print(f"Log saved at : \"{f.name}\"")
+        print("The END")
         f.close()

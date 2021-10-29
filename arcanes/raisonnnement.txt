@@ -1,0 +1,28 @@
+litterals_test = {
+    1: (None,False)
+    2: None,
+    3: None
+}
+
+conjonctive_test = [
+    [1, 2, 3],
+    [-1, 2],
+    [-2, 3],
+    [-3, 1],
+    [-1, -2, -3],
+    [2]
+]
+
+
+- En boucle jusqu'à ne plus trouver de mono littéraux
+    - Trouver tous les mono-litteraux et leur assigner des valeurs définitives. Si on trouve un monolittéral et sa négation en même temps, fin du programme.
+    - Simplifaction de la conjonctive (on vire les monolitteraux et toutes les clauses contenant déjà des True, on enlève aussi tous les litteraux False des clauses)
+
+- En boucle jusqu'à ne plus trouver de litteraux pur
+    - Trouver les littéraux purs et leur assigner la valeur Vrai
+    - Simplifaction de la conjonctive
+
+-En boucle
+    - dans la liste des non définitifs affecter une valeur temporaire à un des litteraux puis simplifier
+    - Continuer tant que la simplifaction donne toujours une expression satisfaisables
+    - Si la simplification donne un résultat insatisfaisable, il faut retourner en arrière et changer la valeur du dernier litteral et ainsi de suite

@@ -1,15 +1,5 @@
 import copy
-literals_test = {
-    1: None,
-    2: None,
-    3: None,
-    4: None
-}
 
-conjonctive_test = [
-    [1, 2, 3, 4],
-    [-1, -2, -3, -4]
-]
 
 def clauseIsTrue(clause, literals):
     """Tells if a clause is true given all it's literals values"""
@@ -126,13 +116,15 @@ def first_satisfy(conjonctive, literals):
     return max(counter, key=counter.get)
 
 def first_fail(conjonctive, literals):
-    counter_neg = {-literal: 0 for literal in range(literals)}
+    counter_neg = {}
+    for i in range(-1, -(len(literals) + 1), -1):
+        counter_neg[i] = 0
     keys = counter_neg.keys()
     for clause in conjonctive:
         for literal in clause:
             if literals[abs(literal)] == None and literal in keys:
                 counter_neg[literal] += 1
-    return -max(counter_neg, key = counter_neg.get)
+    return -(max(counter_neg, key = counter_neg.get))
 
 
 def proceed(conjonctive, literals, pile, modified, mode = 0):
@@ -155,7 +147,6 @@ def proceed(conjonctive, literals, pile, modified, mode = 0):
             literal = first_satisfy(conjonctive,literals)
         elif mode == 2:
             literal = first_fail(conjonctive,literals)
- 
     # We attribute value to the literal and update corresponding parameters
     literals[literal] = True
     pile.append(literal)
@@ -193,6 +184,7 @@ def back(literals, conjonctive, pile, modified):
 
 def solve(literals:dict, conjonctive, first_solution_only = False, mode = 0):
     # We begin by simplifying all mono-literals
+    counter = 0
     init = initialize_solving(conjonctive,literals)
     if isinstance(init, bool):
         if not(init):
@@ -205,6 +197,7 @@ def solve(literals:dict, conjonctive, first_solution_only = False, mode = 0):
     cal_12 = True
     solutions = []
     while cal_12:
+        counter += 1
         #print(f"1 conjonctive : {conjonctive}\nlitteraux : {literals}\n length_vector : {length_vector}\n\n")
         length_vector = simplify(conjonctive, literals, modified, pile)
         #print(f"2 conjonctive : {conjonctive}\nlitteraux : {literals}\n length_vector : {length_vector}\n\n")
@@ -231,7 +224,7 @@ def solve(literals:dict, conjonctive, first_solution_only = False, mode = 0):
 
     
     #return (f"literals: {literals}\npile: {pile}\nmodifiable_literals: {modifiable_literals}\nmodified: {modified}")
-    return solutions
+    return solutions, counter
     
 
 def naive_solve(literals, conjonctive):
@@ -257,26 +250,6 @@ def naive_solve(literals, conjonctive):
         if conjonctiveIsTrue(conjonctive, literals):
             solutions.append(copy.deepcopy(literals))
     return solutions
-
-literals_b = {
-    1: None,
-    2: None,
-    3: None,
-    4: None,
-    5: None,
-    6: None,
-    7: None,
-    8: None,
-    9: None,
-    10: None
-}
-
-conjonctive_test = [[-3, 4, -6, 7, 9, -10], [1, -2, -3, -5, -6, 7, 9, 10], [1, -3, 4, 5, 7, -8], [-2, -3, -6, -7, -9, 10], [1, -2, 3, -4, 5, -6, -7, 8, -9, -10], [-3, -4, -7], [-1, -2, -3, -5, 6, -7, 8, 9, 10], [1, 3, -5, 6, 9], [2, 3, 5, 6, -8, 9, 10], [-1, 4, 5, 6, -7, 10]]
-conjonctive_test_2 = [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [1]]
-
-
-
-
 
 
 ############################################################ DEAD ZONE ############################################################
