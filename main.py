@@ -35,9 +35,12 @@ def main():
         only_one_solution = True
     else:
         only_one_solution = False
-    naif = input("Do you want to compare the solver' results with the results of a naive solver ? Be warned that this may takes time. (y/n) ")
-    if naif == "y" or naif == "Y" or naif == "yes" or naif == "Yes":
-        naif = True
+    if not only_one_solution:
+        naif = input("Do you want to compare the solver' results with the results of a naive solver ? Be warned that this may takes time. (y/n) ")
+        if naif == "y" or naif == "Y" or naif == "yes" or naif == "Yes":
+            naif = True
+        else:
+            naif = False
     else:
         naif = False
 
@@ -56,9 +59,8 @@ def main():
             n_clauses = int(input("How many clauses do you want ? "))
             file_management.write_results([CNF_generator.generate_conjonctive(n_clauses, n_literals)], only_one_solution, naif, heuristic)
         elif rand_choice == 1:
-            # Insert pigeon once it's done
-            print("Apple's customer")
-            return
+            n_pigeons = int(input("How many pigeons do you want ? "))
+            file_management.write_results([CNF_generator.generate_pigeon(n_pigeons)], only_one_solution, naif, heuristic)
         elif rand_choice == 2:
             # Insert mes couilles once it's done
             print("Elisabeth will bury us all")

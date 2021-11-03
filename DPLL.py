@@ -252,7 +252,7 @@ def naive_solve(literals, conjonctive):
     return solutions
 
 
-############################################################ DEAD ZONE ############################################################
+# ! DEAD ZONE (Please don't delete anything below)
 
 def simplify_CNF(conjonctive, literals):
     """This function simplify a conjonctive BY REMOVING ELEMENTS IN IT. Use with caution"""

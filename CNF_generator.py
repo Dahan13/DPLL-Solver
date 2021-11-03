@@ -2,7 +2,7 @@ import random as rd
 
 def generate_conjonctive(n_clauses, n_literals):
 
-    # Generating litterals
+    # Generating literals
     literals = {}
     for i in range(1, n_literals + 1):
         literals[i] = None
@@ -22,6 +22,33 @@ def generate_conjonctive(n_clauses, n_literals):
 
         if len(clause) != 0:
             conjonctive.append(clause)
+    name = input("Enter the name to save the generated conjonctive :\n")
+    save_conjonctive(name, literals, conjonctive)
+    return literals, conjonctive
+
+def generate_pigeon(n):
+    """Trying to put n pigeons in n - 1 houses with 1 pigeon per house"""
+    # Generating literals
+    bijection = {}
+    literals = {}
+    for i in range(1, n+1): # i represent the pigeon
+        for j in range(1, n): # j represent the house
+            bijection[(i,j)] = None
+    for i in range(1, len(bijection) + 1):
+        literals[i] = None
+    # Generating clauses
+    conjonctive = []
+    literals_keys = list(literals.keys())
+    bijection_keys = list(bijection.keys())
+    for i in range(1, n + 1):
+        conjonctive.append([literals_keys[bijection_keys.index((i, m))] for m in range(1, n)])
+        for j in range(1, n + 1):
+            for k in range(1, n):
+                if i != j:
+                    conjonctive.append([-literals_keys[bijection_keys.index((i, k))], -literals_keys[bijection_keys.index((j, k))]])
+                    for l in range(1, n):
+                        if k != l:
+                            conjonctive.append([-literals_keys[bijection_keys.index((i, k))], -literals_keys[bijection_keys.index((i, l))]])
     name = input("Enter the name to save the generated conjonctive :\n")
     save_conjonctive(name, literals, conjonctive)
     return literals, conjonctive

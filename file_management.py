@@ -97,19 +97,22 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
         start_solve = time.time()
         solutions, counter = DPLL.solve(litterals, conjonctive, only_one_solution, mode)
         end_solve = time.time()
-        print("Starting reconstruction")
-        start_reconstruct = time.time()
-        solutions = solutions_reconstruction(solutions)
         
         if only_one_solution:
             solutions = [solutions[0]]
         
-        end_reconstruct = time.time()
         exec_time_solve = end_solve - start_solve
-        exec_time_reconstruct = end_reconstruct - start_reconstruct
         if show_naive and not(only_one_solution):
-            print("Start naive calculation")
+            print("Starting reconstruction")
+            start_reconstruct = time.time()
+            solutions = solutions_reconstruction(solutions)
+            end_reconstruct = time.time()
+            exec_time_reconstruct = end_reconstruct - start_reconstruct
+            print("Starting naive calculation")
+            start_naive = time.time()
             naive_solution = DPLL.naive_solve(litterals, conjonctive)
+            end_naive = time.time()
+            exec_time_naive = end_naive - start_naive
             solution_checker = True
             if len(solutions) != len(naive_solution) or len(solutions) > node_numbers: # Testing some worst case scenarios
                 print("A critical error occurred")
@@ -135,11 +138,12 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
         f.write(f"Number of nodes traveled : {counter}\n")
         f.write(f"Heuristic chosen : {heuristic_name}\n")
         f.write(f"Solver execution time : {exec_time_solve}s\n")
-        f.write(f"Solution reconstruction execution time : {exec_time_reconstruct}s\n")
-        f.write(f"Total execution time : {exec_time_solve + exec_time_reconstruct}s\n\n")
         f.write(f"Conjonctive treated : {conjonctive}\n\n")
         if show_naive and not(only_one_solution):
+            f.write(f"Solution reconstruction execution time : {exec_time_reconstruct}s\n")
+            f.write(f"Naive solver execution time : {exec_time_naive}s\n")
             f.write(f"Result comparison with naive solver : {solution_checker}\n")
+            
         f.write("Solutions found :\n")
         for element in solutions :
             f.write(f"- {element}\n")
