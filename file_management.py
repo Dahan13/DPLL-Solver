@@ -144,14 +144,19 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
             f.write(f"Naive solver execution time : {exec_time_naive}s\n")
             f.write(f"Result comparison with naive solver : {solution_checker}\n")
             
-        f.write("Solutions found :\n")
-        for element in solutions :
-            f.write(f"- {element}\n")
+        if len(solutions) != 0:
+            f.write("Solutions found :\n")
+            for element in solutions :
+                f.write(f"- {element}\n")
+        else:
+            f.write("No solutions found\n")
         
         if show_naive and not(only_one_solution):
-            f.write("\n\nNaive solutions found :\n")
-            for element in naive_solution :
-                f.write(f"- {element}\n")
+            if len(naive_solution) != 0:
+                f.write("\n\nNaive solutions found :\n")
+                for element in naive_solution :
+                    f.write(f"- {element}\n")
+            else:
+                f.write("Naive solver found no solutions")
         print(f"Log saved at : \"{f.name}\"")
-        print("The END")
         f.close()

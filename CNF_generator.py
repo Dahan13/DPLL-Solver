@@ -49,8 +49,15 @@ def generate_pigeon(n):
                     for l in range(1, n):
                         if k != l:
                             conjonctive.append([-literals_keys[bijection_keys.index((i, k))], -literals_keys[bijection_keys.index((i, l))]])
+    # Now removing doubles from the list
+    conjonctive_keep = []
+    for element in conjonctive:
+        element.sort() # Because doubles may comes but ordered differently
+        if not(element in conjonctive_keep):
+            conjonctive_keep.append(element)
+    # Saving and returning
     name = input("Enter the name to save the generated conjonctive :\n")
-    save_conjonctive(name, literals, conjonctive)
+    save_conjonctive(name, literals, conjonctive_keep)
     return literals, conjonctive
 
 def save_conjonctive(name, literals, conjonctive):
