@@ -1,9 +1,8 @@
 from typing import Literal
-import DPLL
+from source import DPLL
 import time
 import datetime
 import copy
-import CNF_generator as gen
 
 def load_conjonctive(path: str):
     """Read and get data from a file"""
@@ -93,7 +92,7 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
         conjonctive = couple[1]
         # Getting all values
         node_numbers = 2**(len(litterals.keys())) # Total number of possibilities (= combination of litteral values)
-        print("Starting calculation")
+        print("\n\n/!\\ Starting calculation /!\\")
         start_solve = time.time()
         solutions, counter = DPLL.solve(litterals, conjonctive, only_one_solution, mode)
         end_solve = time.time()
