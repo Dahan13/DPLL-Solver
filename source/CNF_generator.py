@@ -80,14 +80,14 @@ def generate_queens(n):
             # Generating clauses related to diagonals. 
             if i != n: # Condition to have an actual diagonal below
                 for m in range(1, n):
-                    if 1 <= i + m <= n and 1 <= j + m <= n: # (i + m, j + m) are coordinates of an element of the diagonal
+                    if  i + m <= n and j + m <= n: # (i + m, j + m) are coordinates of an element of the diagonal
                         conjonctive.append([-literals_keys[bijection_keys.index((i, j))], -literals_keys[bijection_keys.index((i + m, j + m))]])
-                    if 1 <= i + m <= n and 1 <= j - m <= n: # (i + m, j - m) are coordinates of an element of the anti-diagonal
+                    if i + m <= n and 1 <= j - m: # (i + m, j - m) are coordinates of an element of the anti-diagonal
                         conjonctive.append([-literals_keys[bijection_keys.index((i, j))], -literals_keys[bijection_keys.index((i + m, j - m))]])
             for k in range(1, n + 1):
                 if j != k:
                     conjonctive.append([-literals_keys[bijection_keys.index((i, j))], -literals_keys[bijection_keys.index((i, k))]])
-                    conjonctive.append([-literals_keys[bijection_keys.index((j, i))], -literals_keys[bijection_keys.index((k, i))]])
+                    conjonctive.append([-literals_keys[bijection_keys.index((j, i))], -literals_keys[bijection_keys.index((k, i))]]) # ! The clauses this line create are useless but somehow it makes the solving faster
     # Now removing doubles from the list
     conjonctive_keep = []
     for element in conjonctive:
