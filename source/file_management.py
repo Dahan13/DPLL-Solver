@@ -1,4 +1,3 @@
-from typing import Literal
 from source import DPLL
 import time
 import datetime
@@ -56,7 +55,6 @@ def convert_conjonctive(conjonctive_list):
 def get_conjonctives(path: str):
     print("Initialise loading")
     return convert_conjonctive(separate_conjonctives(load_conjonctive(path)))
-    print("Ready to work")
 
 def solutions_reconstruction(solutions):
     """Takes an array of all the litterals that are solutions"""
@@ -159,3 +157,4 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
                 f.write("Naive solver found no solutions")
         print(f"Log saved at : \"{f.name}\"")
         f.close()
+

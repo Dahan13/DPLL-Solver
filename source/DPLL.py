@@ -71,6 +71,16 @@ def mono_literals(conjonctive, literals, modified, pile, length_vector):
                 pile.append(abs(clause[index]))
     return literals, True
 
+def first_mono_literals(conjonctive, literals, length_vector):
+    """Madlad's function that should destroy the complexity issues of the solver.
+    This function return None if there is not mono literals, else the first mono literal found"""
+    # We try to find a vector of length 1 in our clause. We use a try statement to save complexity by doing only one loop instead of two.
+    if 1 in length_vector:
+        target_index = length_vector.index(1)
+        for literal in conjonctive[target_index]:
+            if literals[abs(literal)] == None:
+                return literal
+    return None
 
 def pure_literals(conjonctive, literals, modified, pile):
     """Assigns values to pure literals and return all the literals"""
@@ -127,30 +137,38 @@ def first_fail(conjonctive, literals):
     return -(max(counter_neg, key = counter_neg.get))
 
 
-def proceed(conjonctive, literals, pile, modified, mode = 0):
+def proceed(conjonctive, literals, pile, modified, length_vector, mode = 0):
     """Proceed to the next litteral withing the possibility tree"""
-    literals_list = list(literals.keys())
-    # Case where no literals were treated yet
-    if pile == []:
-        if mode == 0:
-            literal = literals_list[0]
-        elif mode == 1:
-            literal = first_satisfy(conjonctive,literals)
-        elif mode == 2:
-            literal = first_fail(conjonctive,literals)
+    mono_literal = first_mono_literals(conjonctive, literals, length_vector)
+    if mono_literal == None: # Case no mono-literals found
+        literals_list = list(literals.keys())
+        # Case where no literals were treated yet
+        if pile == []:
+            if mode == 0:
+                literal = literals_list[0]
+            elif mode == 1:
+                literal = first_satisfy(conjonctive,literals)
+            elif mode == 2:
+                literal = first_fail(conjonctive,literals)
 
-    # If at least one literal was treated
-    else:
-        if mode == 0:
-            literal = modified.index(0)
-        elif mode == 1:
-            literal = first_satisfy(conjonctive,literals)
-        elif mode == 2:
-            literal = first_fail(conjonctive,literals)
-    # We attribute value to the literal and update corresponding parameters
-    literals[literal] = True
-    pile.append(literal)
-    modified[literal] += 1
+        # If at least one literal was treated
+        else:
+            if mode == 0:
+                literal = modified.index(0)
+            elif mode == 1:
+                literal = first_satisfy(conjonctive,literals)
+            elif mode == 2:
+                literal = first_fail(conjonctive,literals)
+        # We attribute value to the literal and update corresponding parameters
+        literals[literal] = True
+        pile.append(literal)
+        modified[literal] += 1
+    else: # Case a mono-literal was found
+        abs_mono = abs(mono_literal)
+        literals[abs_mono] = (mono_literal > 0)
+        pile.append(abs_mono)
+        modified[abs_mono] = 2
+
     return literals
     
 
@@ -220,7 +238,7 @@ def solve(literals:dict, conjonctive, first_solution_only = False, mode = 0):
                     if literals == False:
                         cal_12 = False
         else:
-            literals = proceed(conjonctive, literals, pile, modified, mode)
+            literals = proceed(conjonctive, literals, pile, modified, length_vector, mode)
 
     
     #return (f"literals: {literals}\npile: {pile}\nmodifiable_literals: {modifiable_literals}\nmodified: {modified}")
