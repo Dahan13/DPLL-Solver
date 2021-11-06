@@ -26,7 +26,7 @@ def generate_conjonctive(n_clauses, n_literals):
     save_conjonctive(name, literals, conjonctive)
     return literals, conjonctive
 
-def generate_pigeon(n):
+def generate_pigeon(n, saving = True):
     """Trying to put n pigeons in n - 1 houses with 1 pigeon per house"""
     # Generating literals
     bijection = {}
@@ -56,9 +56,10 @@ def generate_pigeon(n):
         if not(element in conjonctive_keep):
             conjonctive_keep.append(element)
     # Saving and returning
-    name = input("Enter the name to save the generated conjonctive :\n")
-    save_conjonctive(name, literals, conjonctive_keep)
-    return literals, conjonctive_keep
+    if saving:
+        name = input("Enter the name to save the generated conjonctive :\n")
+        save_conjonctive(name, literals, conjonctive_keep)
+    return literals, conjonctive
 
 def generate_queens(n):
     """Simp function that generate a N-queens problem"""
