@@ -61,6 +61,45 @@ def generate_pigeon(n, saving = True):
         save_conjonctive(name, literals, conjonctive_keep)
     return literals, conjonctive
 
+def generate_queens(n):
+    """Simp function that generate a N-queens problem"""
+    # Generating literals
+    bijection = {}
+    literals = {}
+    for i in range(1, n + 1): # i represents the line
+        for j in range(1, n + 1): # j represents the column
+            bijection[(i,j)] = None
+    for i in range(1, len(bijection) + 1):
+        literals[i] = None
+    # Generating clauses for lines
+    conjonctive = []
+    literals_keys = list(literals.keys())
+    bijection_keys = list(bijection.keys())
+    for i in range(1, n + 1):
+        conjonctive.append([literals_keys[bijection_keys.index((m, i))] for m in range(1, n + 1)])
+        for j in range(1, n + 1):
+            # Generating clauses related to diagonals. 
+            if i != n: # Condition to have an actual diagonal below
+                for m in range(1, n):
+                    if  i + m <= n and j + m <= n: # (i + m, j + m) are coordinates of an element of the diagonal
+                        conjonctive.append([-literals_keys[bijection_keys.index((i, j))], -literals_keys[bijection_keys.index((i + m, j + m))]])
+                    if i + m <= n and 1 <= j - m: # (i + m, j - m) are coordinates of an element of the anti-diagonal
+                        conjonctive.append([-literals_keys[bijection_keys.index((i, j))], -literals_keys[bijection_keys.index((i + m, j - m))]])
+            for k in range(1, n + 1):
+                if j != k:
+                    conjonctive.append([-literals_keys[bijection_keys.index((i, j))], -literals_keys[bijection_keys.index((i, k))]])
+                    conjonctive.append([-literals_keys[bijection_keys.index((j, i))], -literals_keys[bijection_keys.index((k, i))]]) # ! The clauses this line create are useless but somehow it makes the solving faster
+    # Now removing doubles from the list
+    conjonctive_keep = []
+    for element in conjonctive:
+        element.sort() # Because doubles may comes but ordered differently
+        if not(element in conjonctive_keep):
+            conjonctive_keep.append(element)
+    # Saving and returning
+    name = input("Enter the name to save the generated conjonctive :\n")
+    save_conjonctive(name, literals, conjonctive_keep)
+    return literals, conjonctive_keep
+
 def save_conjonctive(name, literals, conjonctive):
     path = f"./saves/{name}"
     path += ".txt"
