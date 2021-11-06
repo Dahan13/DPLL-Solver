@@ -1,5 +1,4 @@
-from typing import Literal
-import DPLL
+from source import DPLL
 import time
 import datetime
 import copy
