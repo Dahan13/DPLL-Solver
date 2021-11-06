@@ -68,7 +68,9 @@ def graph(n_max, function,sample_mean = 1, only_one_solution = False):
     plt.yscale("log")
     plt.legend()
     plt.savefig("./graph_result/test.png")
-    plt.savefig(f"./graph_result/time_pigeon_{n_max}litterals_mean{sample_mean}.png")
+    file_title = f"./graph_result/time_pigeon_{n_max}litterals_mean{sample_mean}_{datetime.datetime.today()}.png"
+    file_title = file_title.replace(":", "_") 
+    plt.savefig(file_title)
 
     # nodes 
     fig2 = plt.figure()
@@ -80,7 +82,10 @@ def graph(n_max, function,sample_mean = 1, only_one_solution = False):
     plt.ylabel("Number of nodes explored")
     plt.yscale("log")
     plt.legend()
-    plt.savefig(f"./graph_result/nodes_pigeon_{n_max}litterals_mean{sample_mean}.png")
+    file_title = f"./graph_result/nodes_pigeon_{n_max}litterals_mean{sample_mean}_{datetime.datetime.today()}.png"
+    file_title = file_title.replace(":", "_") 
+    plt.savefig(file_title)
+    
 
 
 graph(5,CNF_generator.generate_pigeon)
