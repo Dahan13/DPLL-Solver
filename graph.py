@@ -4,6 +4,16 @@ import time
 from source import DPLL
 from source import CNF_generator
 import datetime
+try:
+    import winsound
+    is_windows = True
+except:
+    is_windows = False
+
+def make_noise():
+  duration = 1000  # milliseconds
+  freq = 440  # Hz
+  winsound.Beep(freq, duration)
 
 def graph(n_max, function, sample_mean = 1):
     yt_n=[0 for i in range(n_max+1)]
@@ -40,8 +50,8 @@ def graph(n_max, function, sample_mean = 1):
 
 
     # Calculation
-    for n in x:
-        if function == CNF_generator.generate_conjonctive: # ! Complexity over 90000  
+    for n in x:      
+        if function == CNF_generator.generate_conjonctive: # ! Complexity over 9000 
             if choice == 1:
                 print("1")
                 litterals, conjonctive = function(n, n_second, saving = False)
@@ -86,6 +96,11 @@ def graph(n_max, function, sample_mean = 1):
             counter_list.append(counter)
         yc_f[n] = np.mean(counter_list)
         yt_f[n] = np.mean(t_list)
+
+        # Progression
+        pourcentage = round((n/n_max)*100, 2)
+        print(f"{pourcentage}%",end="\r")
+
     
 
     # Start ploting
@@ -96,13 +111,18 @@ def graph(n_max, function, sample_mean = 1):
     plt.plot(x,yt_s,label="First Fail")
     plt.title(f"Time for {function.__name__} \nmean over {sample_mean}")
     plt.xlabel(legend)
-    plt.ylabel("Time of résolution")
-    # plt.yscale("log")
+    plt.ylabel("Time of résolution (s)")
     plt.legend()
+    
     file_title = f"./graph_result/time_{name}.png"
     file_title = file_title.replace(":", "_") 
     plt.savefig(file_title)
-
+    
+    plt.yscale("log")
+    file_title = f"./graph_result/time_log_{name}.png"
+    file_title = file_title.replace(":", "_") 
+    plt.savefig(file_title)
+    
     # nodes 
     fig2 = plt.figure()
     plt.plot(x,yc_n, label="Naive")
@@ -111,12 +131,22 @@ def graph(n_max, function, sample_mean = 1):
     plt.title(f"Nodes for {function.__name__} \nmean over {sample_mean}")
     plt.xlabel(legend)
     plt.ylabel("Number of nodes explored")
-    # plt.yscale("log")
     plt.legend()
+
     file_title = f"./graph_result/nodes_{name}.png"
     file_title = file_title.replace(":", "_") 
     plt.savefig(file_title)
-    
+
+    plt.yscale("log")
+    file_title = f"./graph_result/nodes_log_{name}.png"
+    file_title = file_title.replace(":", "_") 
+    plt.savefig(file_title)
+
+    print("\nDone")
+    if is_windows:
+        make_noise()        
+    else:
+        next
 
 
-graph(10,CNF_generator.generate_conjonctive)
+graph(9,CNF_generator.generate_pigeon,sample_mean=3)
