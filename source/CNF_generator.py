@@ -1,6 +1,6 @@
 import random as rd
 
-def generate_conjonctive(n_clauses, n_literals):
+def generate_conjonctive(n_literals, n_clauses, saving = True):
 
     # Generating literals
     literals = {}
@@ -22,8 +22,9 @@ def generate_conjonctive(n_clauses, n_literals):
 
         if len(clause) != 0:
             conjonctive.append(clause)
-    name = input("Enter the name to save the generated conjonctive :\n")
-    save_conjonctive(name, literals, conjonctive)
+    if saving:
+        name = input("Enter the name to save the generated conjonctive :\n")
+        save_conjonctive(name, literals, conjonctive)
     return literals, conjonctive
 
 def generate_pigeon(n, saving = True):
@@ -61,7 +62,7 @@ def generate_pigeon(n, saving = True):
         save_conjonctive(name, literals, conjonctive_keep)
     return literals, conjonctive
 
-def generate_queens(n):
+def generate_queens(n,saving = True):
     """Simp function that generate a N-queens problem"""
     # Generating literals
     bijection = {}
@@ -96,8 +97,9 @@ def generate_queens(n):
         if not(element in conjonctive_keep):
             conjonctive_keep.append(element)
     # Saving and returning
-    name = input("Enter the name to save the generated conjonctive :\n")
-    save_conjonctive(name, literals, conjonctive_keep)
+    if saving:
+        name = input("Enter the name to save the generated conjonctive :\n")
+        save_conjonctive(name, literals, conjonctive_keep)
     return literals, conjonctive_keep
 
 def save_conjonctive(name, literals, conjonctive):

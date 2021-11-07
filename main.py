@@ -33,7 +33,7 @@ def main():
         if rand_choice == 0:
             n_literals = int(input("How many literals do you want ? "))
             n_clauses = int(input("How many clauses do you want ? "))
-            file_management.write_results([CNF_generator.generate_conjonctive(n_clauses, n_literals)], only_one_solution, naif, heuristic)
+            file_management.write_results([CNF_generator.generate_conjonctive(n_literals, n_clauses)], only_one_solution, naif, heuristic)
         elif rand_choice == 1:
             n_pigeons = int(input("How many pigeons do you want ? "))
             file_management.write_results([CNF_generator.generate_pigeon(n_pigeons)], only_one_solution, naif, heuristic)
