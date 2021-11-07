@@ -5,25 +5,51 @@ from source import DPLL
 from source import CNF_generator
 import datetime
 
-def graph(n_litterals_max, function, sample_mean = 1, size_of_conjonctive = 1):
-    """ mode: 
-     0 = naive 
-     1 = first satisfy 
-     2 = first fail """
-    yt_n=[0 for i in range(n_litterals_max+1)]
-    yc_n=[0 for i in range(n_litterals_max+1)]
-    yt_s=[0 for i in range(n_litterals_max+1)]
-    yc_s=[0 for i in range(n_litterals_max+1)]
-    yt_f=[0 for i in range(n_litterals_max+1)]
-    yc_f=[0 for i in range(n_litterals_max+1)]
-    x=[i for i in range(n_litterals_max+1)]
-    for n_litterals in x:
-        if function == CNF_generator.generate_conjonctive:
-            print("WIP")
-            return 
-            litterals, conjonctive = function(n_litterals, size_of_conjonctive, saving = False) # ! We need to rethink how to increment on both parameters
+def graph(n_max, function, sample_mean = 1):
+    yt_n=[0 for i in range(n_max+1)]
+    yc_n=[0 for i in range(n_max+1)]
+    yt_s=[0 for i in range(n_max+1)]
+    yc_s=[0 for i in range(n_max+1)]
+    yt_f=[0 for i in range(n_max+1)]
+    yc_f=[0 for i in range(n_max+1)]
+    x=[i for i in range(n_max+1)]
+
+    # prep parameters
+    if function == CNF_generator.generate_pigeon:
+        legend = "Number of pigeons"
+        name = f"{function.__name__}_{n_max}pigeons_mean{sample_mean}_{datetime.datetime.today()}"
+    elif function == CNF_generator.generate_queens:
+        legend = "Number of queens"
+        name = f"{function.__name__}_{n_max}queens_mean{sample_mean}_{datetime.datetime.today()}"
+    elif function == CNF_generator.generate_conjonctive:
+        choice = int(input("Increment on litterals (1) or on number of clauses (2) : "))
+        if choice == 1:
+            legend = "Number of litterals"
+            n_second= int(input("Enter number of clauses : "))
+            name = f"{function.__name__}_{n_max}litterals_F{n_second}clauses_mean{sample_mean}_{datetime.datetime.today()}"
+        elif choice == 2:
+            legend = "Number of clauses"
+            n_second= int(input("Enter number of litterals : "))
+            name = f"{function.__name__}_F{n_second}litterals_{n_max}clauses_mean{sample_mean}_{datetime.datetime.today()}"
         else:
-            litterals, conjonctive = function(n_litterals, saving = False)
+            print("Invalid parameter")
+            return
+    else:
+        print("Invalid function")
+        return
+
+
+    # Calculation
+    for n in x:
+        if function == CNF_generator.generate_conjonctive: # ! Complexity over 90000  
+            if choice == 1:
+                print("1")
+                litterals, conjonctive = function(n, n_second, saving = False)
+            elif choice == 2:
+                print("2")
+                litterals, conjonctive = function(n_second, n, saving = False) 
+        else:
+            litterals, conjonctive = function(n, saving = False)
 
         # Naive 
         t_list=[]
@@ -34,8 +60,8 @@ def graph(n_litterals_max, function, sample_mean = 1, size_of_conjonctive = 1):
             te= time.time()
             t_list.append(te-ts)
             counter_list.append(counter)
-        yc_n[n_litterals] = np.mean(counter_list)
-        yt_n[n_litterals] = np.mean(t_list)
+        yc_n[n] = np.mean(counter_list)
+        yt_n[n] = np.mean(t_list)
 
         # First satisfy
         t_list=[]
@@ -46,8 +72,8 @@ def graph(n_litterals_max, function, sample_mean = 1, size_of_conjonctive = 1):
             te= time.time()
             t_list.append(te-ts)
             counter_list.append(counter)
-        yc_s[n_litterals] = np.mean(counter_list)
-        yt_s[n_litterals] = np.mean(t_list)
+        yc_s[n] = np.mean(counter_list)
+        yt_s[n] = np.mean(t_list)
 
         # First fail
         t_list=[]
@@ -58,21 +84,22 @@ def graph(n_litterals_max, function, sample_mean = 1, size_of_conjonctive = 1):
             te= time.time()
             t_list.append(te-ts)
             counter_list.append(counter)
-        yc_f[n_litterals] = np.mean(counter_list)
-        yt_f[n_litterals] = np.mean(t_list)
+        yc_f[n] = np.mean(counter_list)
+        yt_f[n] = np.mean(t_list)
     
-    # start ploting
+
+    # Start ploting
     # time 
     fig1 = plt.figure()
     plt.plot(x,yt_n,label="Naive")
     plt.plot(x,yt_s,label="First Satisfy")
     plt.plot(x,yt_s,label="First Fail")
     plt.title(f"Time for {function.__name__} \nmean over {sample_mean}")
-    plt.xlabel("Number of litterals")
+    plt.xlabel(legend)
     plt.ylabel("Time of résolution")
     # plt.yscale("log")
     plt.legend()
-    file_title = f"./graph_result/time_{function.__name__}_{n_litterals_max}litterals_mean{sample_mean}_{datetime.datetime.today()}.png"
+    file_title = f"./graph_result/time_{name}.png"
     file_title = file_title.replace(":", "_") 
     plt.savefig(file_title)
 
@@ -82,14 +109,14 @@ def graph(n_litterals_max, function, sample_mean = 1, size_of_conjonctive = 1):
     plt.plot(x,yc_s,label="First Satisfy")
     plt.plot(x,yc_s,label="First Fail")
     plt.title(f"Nodes for {function.__name__} \nmean over {sample_mean}")
-    plt.xlabel("Number of litterals")
+    plt.xlabel(legend)
     plt.ylabel("Number of nodes explored")
     # plt.yscale("log")
     plt.legend()
-    file_title = f"./graph_result/nodes_{function.__name__}_{n_litterals_max}litterals_mean{sample_mean}_{datetime.datetime.today()}.png"
+    file_title = f"./graph_result/nodes_{name}.png"
     file_title = file_title.replace(":", "_") 
     plt.savefig(file_title)
     
 
 
-graph(5,CNF_generator.generate_conjonctive)
+graph(10,CNF_generator.generate_conjonctive)
