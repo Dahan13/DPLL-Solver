@@ -108,10 +108,10 @@ def graph(n_max, function, sample_mean = 1):
     fig1 = plt.figure()
     plt.plot(x,yt_n,label="Naive")
     plt.plot(x,yt_s,label="First Satisfy")
-    plt.plot(x,yt_s,label="First Fail")
+    plt.plot(x,yt_f,label="First Fail")
     plt.title(f"Time for {function.__name__} \nmean over {sample_mean}")
     plt.xlabel(legend)
-    plt.ylabel("Time of résolution (s)")
+    plt.ylabel("Time of resolution (s)")
     plt.legend()
     
     file_title = f"./graph_result/time_{name}.png"
@@ -127,7 +127,7 @@ def graph(n_max, function, sample_mean = 1):
     fig2 = plt.figure()
     plt.plot(x,yc_n, label="Naive")
     plt.plot(x,yc_s,label="First Satisfy")
-    plt.plot(x,yc_s,label="First Fail")
+    plt.plot(x,yc_f,label="First Fail")
     plt.title(f"Nodes for {function.__name__} \nmean over {sample_mean}")
     plt.xlabel(legend)
     plt.ylabel("Number of nodes explored")
@@ -149,4 +149,4 @@ def graph(n_max, function, sample_mean = 1):
         next
 
 
-graph(9,CNF_generator.generate_pigeon,sample_mean=3)
+graph(8,CNF_generator.generate_queens)
