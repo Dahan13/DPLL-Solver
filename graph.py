@@ -15,6 +15,10 @@ def make_noise():
   freq = 440  # Hz
   winsound.Beep(freq, duration)
 
+# ! ----------------------------------->
+# TODO: Remove log graphs and random conjonctives handling
+# ! ----------------------------------->
+
 def graph(n_max, function, sample_mean = 1):
     yt_n=[0 for i in range(n_max+1)]
     yc_n=[0 for i in range(n_max+1)]
