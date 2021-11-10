@@ -4,5 +4,5 @@ log/*
 !log/.gitkeep
 saves/*
 !saves/.gitkeep
-graph_result/*
+#graph_result/*
 !graph_result/.gitkeep
