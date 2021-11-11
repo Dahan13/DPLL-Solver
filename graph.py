@@ -125,7 +125,7 @@ def graph(n_max, function, sample_mean = 1):
     print("\nDone")
 
 
-graph(8,CNF_generator.generate_queens)
+graph(8,CNF_generator.generate_pigeon)
 
 if is_windows:
     make_noise()        
