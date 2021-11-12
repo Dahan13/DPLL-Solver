@@ -96,7 +96,10 @@ def write_results(conjonctives, only_one_solution = False, show_naive = True, mo
         end_solve = time.time()
         
         if only_one_solution:
-            solutions = [solutions[0]]
+            if len(solutions) > 0:
+                solutions = [solutions[0]]
+            else:
+                solutions = []
         
         exec_time_solve = end_solve - start_solve
         if show_naive and not(only_one_solution):

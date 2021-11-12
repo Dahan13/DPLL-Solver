@@ -130,4 +130,4 @@ graph(8,CNF_generator.generate_pigeon)
 if is_windows:
     make_noise()        
 else:
-    next
+    next()

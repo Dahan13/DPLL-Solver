@@ -1,5 +1,16 @@
 from source import file_management
 from source import CNF_generator
+try:
+    import winsound
+    is_windows = True
+except:
+    is_windows = False
+
+def make_noise():
+    duration = 1000  # milliseconds
+    freq = 440  # Hz
+    winsound.Beep(freq, duration)
+
 
 def main():
     # Asking for all parameters
@@ -40,6 +51,11 @@ def main():
         elif rand_choice == 2:
             n_queens = int(input("Enter the size of the board : "))
             file_management.write_results([CNF_generator.generate_queens(n_queens)], only_one_solution, naif, heuristic)
+    if is_windows:
+        make_noise()
+    else:
+        next()
 
 
 main()
+
