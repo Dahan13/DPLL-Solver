@@ -128,6 +128,4 @@ def graph(n_max, function, sample_mean = 1):
 graph(8,CNF_generator.generate_pigeon)
 
 if is_windows:
-    make_noise()        
-else:
-    next()
+    make_noise()

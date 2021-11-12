@@ -53,9 +53,6 @@ def main():
             file_management.write_results([CNF_generator.generate_queens(n_queens)], only_one_solution, naif, heuristic)
     if is_windows:
         make_noise()
-    else:
-        next()
-
 
 main()
 
